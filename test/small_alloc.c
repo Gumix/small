@@ -122,6 +122,41 @@ small_alloc_large(void)
 	footer();
 }
 
+static void
+test_small_get_objsize(void)
+{
+	header();
+	/*
+	 * Create the following groups of mempools.
+	 * The table is valid for SLAB_MIN_ORDER0_SIZE = [4096, 8192, 16384].
+	 * For 32768 and 65536 the first groups are merged.
+	 *
+	 *  slab  |  mempool
+	 *  size  |  objsize
+	 * -------|----------------------------------------------------------
+	 *  16 KB | 64, 128
+	 *  32 KB | 192, 256
+	 *  64 KB | 384, 512
+	 * 128 KB | 768, 1024
+	 * 256 KB | 1536, 2048
+	 * 512 KB | 3072, 4096
+	 *   1 MB | 6144, 8192
+	 *   2 MB | 12288, 16384
+	 *   4 MB | 24576, 32768, 49152, 65536, 98304, 131072, 196608, 262144
+	 */
+	float actual_alloc_factor;
+	small_alloc_create(&alloc, &cache, 64, 64, 1.5f, &actual_alloc_factor);
+
+	fail_unless(small_get_objsize(&alloc, 257) == 512);
+	fail_unless(small_get_objsize(&alloc, 512) == 512);
+	fail_unless(small_get_objsize(&alloc, 16385) == 262144);
+	fail_unless(small_get_objsize(&alloc, 262144) == 262144);
+	fail_unless(small_get_objsize(&alloc, 262145) == 0);
+
+	small_alloc_destroy(&alloc);
+	footer();
+}
+
 int main()
 {
 	seed = time(0);
@@ -136,6 +171,7 @@ int main()
 
 	small_alloc_basic();
 	small_alloc_large();
+	test_small_get_objsize();
 
 	slab_cache_destroy(&cache);
 }

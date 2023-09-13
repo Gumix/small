@@ -2,3 +2,5 @@
 	*** small_alloc_basic: done ***
 	*** small_alloc_large ***
 	*** small_alloc_large: done ***
+	*** test_small_get_objsize ***
+	*** test_small_get_objsize: done ***

@@ -470,3 +470,12 @@ small_stats(struct small_alloc *alloc,
 			break;
 	}
 }
+
+size_t
+small_get_objsize(struct small_alloc *alloc, size_t size)
+{
+	struct small_mempool *small_mempool = small_mempool_search(alloc, size);
+	if (small_mempool == NULL)
+		return 0;
+	return small_mempool->used_pool->pool.objsize;
+}

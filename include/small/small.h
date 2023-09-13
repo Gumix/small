@@ -222,6 +222,15 @@ small_stats(struct small_alloc *alloc,
 	    struct small_stats *totals,
 	    int (*cb)(const void *, void *), void *cb_ctx);
 
+/**
+ * Return the size of the mempool object that is actually allocated for the
+ * requested size. Note that it can return different values for the same input,
+ * depending on the current `small_mempool->used_pool'.
+ * If the object is allocated on the large slab (by malloc), 0 is returned.
+ */
+size_t
+small_get_objsize(struct small_alloc *alloc, size_t size);
+
 #if defined(__cplusplus)
 } /* extern "C" */
 #endif /* defined(__cplusplus) */
